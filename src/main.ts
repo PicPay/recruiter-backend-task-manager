@@ -5,18 +5,21 @@ import {
 } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import secureSession from 'fastify-secure-session';
+import { jwtConstants } from './modules/auth/constants';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter({ logger: true }),
-  );
-  app.enableCors({ origin: '*' });
-  app.register(secureSession, {
-    secret: 'averylogphrasebiggerthanthirtytwochars',
-    salt: 'mq9hDxBVDbspDR6n',
-  });
-  app.setGlobalPrefix('api/v1');
-  await app.listen(process.env.PORT || 3000);
-}
-bootstrap();
+NestFactory.create<NestFastifyApplication>(
+  AppModule,
+  new FastifyAdapter({ logger: true }),
+)
+  .then((it) => (it.enableCors({ origin: '*' }), it))
+  .then(
+    (it) => (
+      it.register(secureSession, {
+        secret: jwtConstants.secret,
+        salt: 'picpay',
+      }),
+      it
+    ),
+  )
+  .then((it) => (it.setGlobalPrefix('api/v1'), it))
+  .then((it) => it.listen(process.env.PORT || 3000));

@@ -1,11 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import * as mongoose from 'mongoose';
-
-export type TaskDocument = Task & mongoose.Document;
+import { Prop, Schema } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
+import { Task } from './task.entity';
 
 @Schema()
-export class Task {
+export class TaskSchema extends Document implements Task {
   @ApiProperty()
   @Prop()
   name: string;
@@ -34,5 +33,3 @@ export class Task {
   @Prop()
   isPaid: boolean;
 }
-
-export const TaskSchema = SchemaFactory.createForClass(Task);

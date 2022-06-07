@@ -5,50 +5,51 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common/exceptions';
-import { Task } from './schemas/task.schema';
-import { CreateTaskDTO } from './dto/UpdateTaskDTO';
-import { UpdateTaskDTO } from './dto/CreateTaskDTO';
-import { User } from '../users/schemas/user.shema';
+import { Task } from './task.entity';
 
 @Injectable()
 export class TaskService {
   constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) {}
 
-  async getAll(user: User) {
-    return await this.taskModel.find({ username: user.username }).exec();
+  getAll(username: string) {
+    return this.taskModel.find({ username }).exec();
   }
 
-  async getById(id: string) {
-    return await this.taskModel.findById(id).exec();
+  getById(id: string) {
+    return this.taskModel.findById(id).exec();
   }
-  async create(user: User, task: CreateTaskDTO) {
-    const username = user.username;
-    this.taskModel.create({
+
+  async create(username: string, task: Task) {
+    return this.taskModel.create({
       username,
       ...task,
     });
   }
 
-  async delete(id: string) {
+  async remove(id: string) {
     try {
       const exist = await this.taskModel.findById(id);
+
       if (exist) {
-        return await this.taskModel.findByIdAndDelete(id);
+        return this.taskModel.findByIdAndDelete(id);
       }
+
       throw new BadRequestException('task does not exist');
     } catch (e) {
       throw new InternalServerErrorException(e);
     }
   }
 
-  async update(id: any, task: UpdateTaskDTO) {
+  async update(id: any, task: Partial<Task>) {
     try {
       const exist = await this.taskModel.findById(id);
+
       if (exist) {
-        return await this.taskModel
+        return this.taskModel
           .findByIdAndUpdate(id, { $set: task }, { new: true })
           .exec();
       }
+
       throw new BadRequestException('task does not exist');
     } catch (e) {
       throw new InternalServerErrorException(e);

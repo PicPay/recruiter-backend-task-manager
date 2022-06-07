@@ -1,9 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
+import { User } from './user.entity';
 import { Model } from 'mongoose';
-import { User } from './schemas/user.shema';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from 'src/shared/services/bcrypt.service';
 import {
   BadRequestException,
@@ -14,43 +12,44 @@ import {
 export class UsersService {
   constructor(
     @InjectModel('User') private readonly userModel: Model<User>,
-    private bcryptService: BcryptService,
+    private readonly bcryptService: BcryptService,
   ) {}
 
-  async getAll() {
-    return await this.userModel.find().exec();
+  getAll() {
+    return this.userModel.find().exec();
   }
 
-  async getById(id: string) {
-    return await this.userModel.findById(id).exec();
+  getById(id: string) {
+    return this.userModel.findById(id).exec();
   }
 
-  async getByEmail(email: string) {
-    return await this.userModel.findOne({ email }).exec();
+  getByEmail(email: string) {
+    return this.userModel.findOne({ email }).exec();
   }
 
-  async create(user: CreateUserDto) {
+  async create(user: User) {
     const userExist = await this.getByEmail(user.email);
 
     if (userExist) {
       throw new BadRequestException('already registered user');
     }
 
-    return await this.userModel.create({
-      username: user.username,
-      email: user.email,
-      password: await this.bcryptService.encrypt(user.password),
+    return this.userModel.create({
+      ...user,
+      password: this.bcryptService.encrypt(user.password),
     });
   }
 
-  async findByIdAndUpdate(id: any, user: UpdateUserDto) {
+  async update(id: string, user: Partial<User>) {
     try {
       const exist = await this.userModel.findById(id);
+
       if (exist) {
-        return await this.userModel
+        return this.userModel
           .findByIdAndUpdate(id, { $set: user }, { new: true })
           .exec();
       }
+
       throw new BadRequestException('user does not exist');
     } catch (e) {
       throw new InternalServerErrorException(e);

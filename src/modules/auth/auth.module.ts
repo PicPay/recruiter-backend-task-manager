@@ -3,12 +3,13 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 
 import { UsersModule } from './../users/users.module';
-import { AuthController } from './controllers/auth.controller';
-import { AuthService } from './services/auth.service';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtStrategy } from './strategy/jtw.strategy';
 import { ConfigModule } from '@nestjs/config';
 import { BcryptService } from 'src/shared/services/bcrypt.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { jwtConstants } from './constants';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { BcryptService } from 'src/shared/services/bcrypt.service';
     UsersModule,
     PassportModule.register({ session: true }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
+      secret: jwtConstants.secret,
       signOptions: { expiresIn: '1day' },
     }),
   ],
