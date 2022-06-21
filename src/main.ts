@@ -1,25 +1,37 @@
 import { NestFactory } from '@nestjs/core';
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
-import secureSession from 'fastify-secure-session';
-import { jwtConstants } from './modules/auth/constants';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-NestFactory.create<NestFastifyApplication>(
-  AppModule,
-  new FastifyAdapter({ logger: true }),
-)
-  .then((it) => (it.enableCors({ origin: '*' }), it))
-  .then(
-    (it) => (
-      it.register(secureSession, {
-        secret: jwtConstants.secret,
-        salt: 'picpay',
-      }),
-      it
-    ),
-  )
-  .then((it) => (it.setGlobalPrefix('api/v1'), it))
-  .then((it) => it.listen(process.env.PORT || 3000));
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  const config = new DocumentBuilder()
+    .setTitle('API')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .addTag('payments')
+    .addTag('users')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('', app, document);
+
+  app.enableCors();
+  await app.listen(process.env.PORT || 8080);
+  console.log(`Application is running on: ${await app.getUrl()}`);
+}
+
+bootstrap();

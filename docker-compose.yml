@@ -1,8 +1,14 @@
-version: '3.3'
+version: "3"
+
 services:
+  server:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
   mongodb:
-    image : mongo:latest
-    container_name: mongodb
+    image: mongo:latest
+    environment:
+      - MONGODB_DATABASE="nest"
     ports:
       - 27017:27017
-    restart: always
