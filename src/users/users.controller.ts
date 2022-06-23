@@ -5,33 +5,24 @@ import {
   HttpStatus,
   Post,
   Body,
-  Put,
   NotFoundException,
   Delete,
   Param,
-  Query,
-  UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateUserDto } from './dto';
+import { ApiTags, ApiExcludeController } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@ApiExcludeController()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
-  
+
   @Get()
-  public async getAllUser(
-    @Res() res: Response,
-    @Query() paginationQuery: PaginationQueryDto,
-  ) {
-    const users = await this.usersService.findAll(paginationQuery);
+  public async getAllUser(@Res() res: Response) {
+    const users = await this.usersService.findAll();
 
     return res.status(HttpStatus.OK).json(users);
   }
@@ -60,29 +51,6 @@ export class UsersController {
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         message: 'Error: User not created!',
-        status: 400,
-      });
-    }
-  }
-
-  @Put('/:id')
-  public async updateUser(
-    @Res() res: Response,
-    @Param('id') userId: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
-    try {
-      const user = await this.usersService.update(userId, updateUserDto);
-      if (!user) {
-        throw new NotFoundException('user does not exist!');
-      }
-      return res.status(HttpStatus.OK).json({
-        message: 'user has been successfully updated',
-        user,
-      });
-    } catch (err) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: User not updated!',
         status: 400,
       });
     }

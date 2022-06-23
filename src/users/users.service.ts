@@ -4,7 +4,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from './interfaces/user.interface';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { User } from './schemas/user.schema';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,20 +12,15 @@ export class UsersService {
     private readonly userModel: Model<User>,
   ) {}
 
-  public async findAll(paginationQuery: PaginationQueryDto): Promise<{
+  public async findAll(): Promise<{
     count: number;
     items: User[];
   }> {
-    const { limit, offset } = paginationQuery;
     const count = await this.userModel.find().countDocuments();
 
     return {
       count,
-      items: await this.userModel
-        .find()
-        .skip(offset - 1)
-        .limit(limit)
-        .exec(),
+      items: await this.userModel.find(),
     };
   }
 

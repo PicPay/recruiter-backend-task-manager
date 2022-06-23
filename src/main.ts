@@ -5,7 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,12 +18,12 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('The API description')
+    .setTitle('Backend de recrutamento PicPay Web')
+    .setDescription(
+      'Este são os endpoints disponíveis para consumo para o teste',
+    )
     .setVersion('1.0')
     .addBearerAuth()
-    .addTag('payments')
-    .addTag('users')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

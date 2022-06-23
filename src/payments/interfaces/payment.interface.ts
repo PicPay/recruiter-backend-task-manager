@@ -6,6 +6,7 @@ export interface IPayment extends Document {
   readonly lastName: string;
   readonly title: string;
   readonly value: number;
-  readonly date: Date;
-  readonly isPaid?: boolean;
+  readonly date: string;
+  readonly image?: string;
+  readonly isPayed?: boolean;
 }

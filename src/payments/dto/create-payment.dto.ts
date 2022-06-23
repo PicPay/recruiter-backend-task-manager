@@ -4,8 +4,8 @@ import {
   IsString,
   IsOptional,
   IsDecimal,
-  IsDate,
   IsBoolean,
+  IsDateString,
 } from 'class-validator';
 
 export class CreatePaymentDto {
@@ -33,11 +33,14 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   readonly value: number;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
-  readonly date: Date;
+  readonly date: string;
+
+  @IsOptional()
+  readonly image?: string;
 
   @IsBoolean()
   @IsOptional()
-  readonly isPaid: boolean;
+  readonly isPayed?: boolean;
 }

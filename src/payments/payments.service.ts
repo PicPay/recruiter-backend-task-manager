@@ -12,27 +12,49 @@ export class PaymentsService {
     @InjectModel(Payment.name) private readonly paymentModel: Model<Payment>,
   ) {}
 
-  public async findAll(paginationQuery: PaginationQueryDto): Promise<{
-    count: number;
-    items: Payment[];
-  }> {
-    const { limit, offset } = paginationQuery;
-    const count = await this.paymentModel.find().countDocuments();
+  public async findAll(
+    paginationQuery: PaginationQueryDto,
+  ): Promise<{ totalPage: number; items: Payment[] }> {
+    const { limit, page, filter } = paginationQuery;
+
+    const regerFilter = new RegExp(filter);
+    const count = await this.paymentModel
+      .find({
+        $or: [
+          {
+            username: regerFilter,
+          },
+          { lastName: regerFilter },
+          { firstName: regerFilter },
+        ],
+      })
+      .countDocuments();
+
+    const items = await this.paymentModel
+      .find({
+        $or: [
+          {
+            username: regerFilter,
+          },
+          { lastName: regerFilter },
+          { firstName: regerFilter },
+        ],
+      })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ date: 'desc' })
+      .exec();
+
+    const totalPage = count / limit;
 
     return {
-      count,
-      items: await this.paymentModel
-        .find()
-        .skip(offset - 1)
-        .limit(limit)
-        .exec(),
+      totalPage: totalPage < 1 ? 1 : Math.round(totalPage),
+      items: items,
     };
   }
 
   public async findOne(PaymentId: string): Promise<Payment> {
-    const Payment = await this.paymentModel
-      .findById({ _id: PaymentId })
-      .exec();
+    const Payment = await this.paymentModel.findById({ _id: PaymentId }).exec();
 
     if (!Payment) {
       throw new NotFoundException(`Payment #${PaymentId} not found`);

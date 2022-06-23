@@ -16,7 +16,12 @@ import { Response } from 'express';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto, UpdatePaymentDto } from './dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('payments')
@@ -27,6 +32,46 @@ export class PaymentsController {
   constructor(private PaymentsService: PaymentsService) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'Traz os pagamentos. Endpoint protegido.',
+  })
+  @ApiParam({
+    name: 'Query',
+    description: 'As queries são para fazer paginação e filtro',
+    allowEmptyValue: true,
+    examples: {
+      a: {
+        summary: 'Sem paginação e sem filtro',
+        value: {} as PaginationQueryDto,
+      },
+      b: {
+        summary: 'Com paginação',
+        value: {
+          limit: 10,
+          page: 1,
+        } as PaginationQueryDto,
+      },
+      c: {
+        summary: 'Com filtro',
+        description:
+          'O filter permite pesquisar por usuários, sendo os campos username, firstName e lastName do schema CreatePaymentDto e traz ordenado por data de criação.',
+        externalValue: 'CreatePaymentDto',
+        value: {
+          filter: 'cdaveley2w',
+        } as PaginationQueryDto,
+      },
+      d: {
+        summary: 'Com filtro e paginação',
+        description:
+          'O filter permite pesquisar por usuários, sendo os campos username, firstName e lastName do schema CreatePaymentDto e traz ordenado por data de criação.',
+        value: {
+          filter: 'cdaveley2w',
+          limit: 10,
+          page: 1,
+        } as PaginationQueryDto,
+      },
+    },
+  })
   public async getAllPayment(
     @Res() res: Response,
     @Query() paginationQuery: PaginationQueryDto,
@@ -36,6 +81,9 @@ export class PaymentsController {
   }
 
   @Get('/:id')
+  @ApiOperation({
+    summary: 'Traz um único pagamento. Endpoint protegido.',
+  })
   public async getPayment(
     @Res() res: Response,
     @Param('id') PaymentId: string,
@@ -50,6 +98,9 @@ export class PaymentsController {
   }
 
   @Post()
+  @ApiOperation({
+    summary: 'Adiciona um pagamento. Endpoint protegido.',
+  })
   public async addPayment(
     @Res() res: Response,
     @Body() createPaymentDto: CreatePaymentDto,
@@ -69,6 +120,9 @@ export class PaymentsController {
   }
 
   @Put('/:id')
+  @ApiOperation({
+    summary: 'Atualiza um pagamento. Endpoint protegido.',
+  })
   public async updatePayment(
     @Res() res: Response,
     @Param('id') PaymentId: string,
@@ -95,6 +149,9 @@ export class PaymentsController {
   }
 
   @Delete('/:id')
+  @ApiOperation({
+    summary: 'Remove um pagamento. Endpoint protegido.',
+  })
   public async deletePayment(
     @Res() res: Response,
     @Param('id') PaymentId: string,

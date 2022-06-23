@@ -19,10 +19,13 @@ export class Payment extends Document {
   value: number;
 
   @Prop()
-  date: Date;
+  date: string;
 
   @Prop()
-  isPaid?: boolean;
+  image: string;
+
+  @Prop()
+  isPayed?: boolean;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);
