@@ -3,9 +3,9 @@ import {
   IsNotEmpty,
   IsString,
   IsOptional,
-  IsDecimal,
   IsBoolean,
   IsDateString,
+  IsNumber,
 } from 'class-validator';
 
 export class CreatePaymentDto {
@@ -29,7 +29,7 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   readonly title: string;
 
-  @IsDecimal()
+  @IsNumber()
   @IsNotEmpty()
   readonly value: number;
 

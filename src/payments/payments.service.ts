@@ -45,7 +45,7 @@ export class PaymentsService {
       .sort({ date: 'desc' })
       .exec();
 
-    const totalPage = count / limit;
+    const totalPage = count / (limit || count);
 
     return {
       totalPage: totalPage < 1 ? 1 : Math.round(totalPage),
@@ -53,14 +53,14 @@ export class PaymentsService {
     };
   }
 
-  public async findOne(PaymentId: string): Promise<Payment> {
-    const Payment = await this.paymentModel.findById({ _id: PaymentId }).exec();
+  public async findOne(paymentId: string): Promise<Payment> {
+    const payment = await this.paymentModel.findById({ _id: paymentId }).exec();
 
-    if (!Payment) {
-      throw new NotFoundException(`Payment #${PaymentId} not found`);
+    if (!payment) {
+      throw new NotFoundException(`Payment #${paymentId} not found`);
     }
 
-    return Payment;
+    return payment;
   }
 
   public async create(createPaymentDto: CreatePaymentDto): Promise<IPayment> {
@@ -69,23 +69,23 @@ export class PaymentsService {
   }
 
   public async update(
-    PaymentId: string,
+    paymentId: string,
     updatePaymentDto: UpdatePaymentDto,
   ): Promise<IPayment> {
     const existingPayment = await this.paymentModel.findByIdAndUpdate(
-      { _id: PaymentId },
+      { _id: paymentId },
       updatePaymentDto,
     );
 
     if (!existingPayment) {
-      throw new NotFoundException(`Payment #${PaymentId} not found`);
+      throw new NotFoundException(`Payment #${paymentId} not found`);
     }
 
     return existingPayment;
   }
 
-  public async remove(PaymentId: string): Promise<any> {
-    const deletedPayment = await this.paymentModel.findByIdAndRemove(PaymentId);
+  public async remove(paymentId: string): Promise<any> {
+    const deletedPayment = await this.paymentModel.findByIdAndRemove(paymentId);
     return deletedPayment;
   }
 }

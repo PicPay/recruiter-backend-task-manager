@@ -29,7 +29,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class PaymentsController {
-  constructor(private PaymentsService: PaymentsService) {}
+  constructor(private paymentsService: PaymentsService) {}
 
   @Get()
   @ApiOperation({
@@ -76,8 +76,8 @@ export class PaymentsController {
     @Res() res: Response,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    const Payments = await this.PaymentsService.findAll(paginationQuery);
-    return res.status(HttpStatus.OK).json(Payments);
+    const payments = await this.paymentsService.findAll(paginationQuery);
+    return res.status(HttpStatus.OK).json(payments);
   }
 
   @Get('/:id')
@@ -86,15 +86,15 @@ export class PaymentsController {
   })
   public async getPayment(
     @Res() res: Response,
-    @Param('id') PaymentId: string,
+    @Param('id') paymentId: string,
   ) {
-    if (!PaymentId) {
+    if (!paymentId) {
       throw new NotFoundException('Payment ID does not exist');
     }
 
-    const Payment = await this.PaymentsService.findOne(PaymentId);
+    const payment = await this.paymentsService.findOne(paymentId);
 
-    return res.status(HttpStatus.OK).json(Payment);
+    return res.status(HttpStatus.OK).json(payment);
   }
 
   @Post()
@@ -106,10 +106,10 @@ export class PaymentsController {
     @Body() createPaymentDto: CreatePaymentDto,
   ) {
     try {
-      const Payment = await this.PaymentsService.create(createPaymentDto);
+      const payment = await this.paymentsService.create(createPaymentDto);
       return res.status(HttpStatus.CREATED).json({
         message: 'Payment has been created successfully',
-        Payment,
+        payment,
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -125,20 +125,20 @@ export class PaymentsController {
   })
   public async updatePayment(
     @Res() res: Response,
-    @Param('id') PaymentId: string,
+    @Param('id') paymentId: string,
     @Body() updatePaymentDto: UpdatePaymentDto,
   ) {
     try {
-      const Payment = await this.PaymentsService.update(
-        PaymentId,
+      const payment = await this.paymentsService.update(
+        paymentId,
         updatePaymentDto,
       );
-      if (!Payment) {
+      if (!payment) {
         throw new NotFoundException('Payment does not exist!');
       }
       return res.status(HttpStatus.OK).json({
         message: 'Payment has been successfully updated',
-        Payment,
+        payment,
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
@@ -154,17 +154,21 @@ export class PaymentsController {
   })
   public async deletePayment(
     @Res() res: Response,
-    @Param('id') PaymentId: string,
+    @Param('id') paymentId: string,
   ) {
-    if (!PaymentId) {
+    if (!paymentId) {
       throw new NotFoundException('Payment ID does not exist');
     }
 
-    const Payment = await this.PaymentsService.remove(PaymentId);
+    const payment = await this.paymentsService.remove(paymentId);
+
+    if (!payment) {
+      throw new NotFoundException('Payment does not exist');
+    }
 
     return res.status(HttpStatus.OK).json({
       message: 'Payment has been deleted',
-      Payment,
+      payment,
     });
   }
 }
